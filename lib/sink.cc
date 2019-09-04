@@ -45,6 +45,17 @@ std::string to_string<event::timestamp_t>(const event::timestamp_t &v)
   return to_string(std::put_time(&tm, "%Y-%m-%dT%H:%M:%S")) + "." + std::to_string(us % 1000000);
 }
 
+void format_event(std::ostream &out, std::string_view f, const event &ev)
+{
+  out << fmt::format(f,
+                     fmt::arg("time", to_string(ev.time)),
+                     fmt::arg("process", ev.process),
+                     fmt::arg("thread", to_string(ev.thread)),
+                     fmt::arg("level", severity(ev.severity)),
+                     fmt::arg("tag", ev.tag),
+                     fmt::arg("msg", ev.msg));
+}
+
 
 }
 
@@ -67,20 +78,17 @@ void set_default_sink()
 
 void set_ostream_sink(std::ostream &out)
 {
-  set_ostream_sink("{time} {process}:{thread} [{level}] {tag} {msg}\n", out);
+  set_ostream_sink("{time} {process}:{thread} {level} [{tag}] {msg}\n", out);
 }
 
 void set_ostream_sink(std::string_view f, std::ostream &out)
 {
-  implementation::g_sink = [&out, f](event ev) {
-    out << fmt::format(f,
-                       fmt::arg("time", to_string(ev.time)),
-                       fmt::arg("process", ev.process),
-                       fmt::arg("thread", to_string(ev.thread)),
-                       fmt::arg("level", severity(ev.severity)),
-                       fmt::arg("tag", ev.tag),
-                       fmt::arg("msg", ev.msg));
-  };
+  // this will validate the format string, throw an exception if it cant format events
+  // just a courtesy to the caller, has no other effect
+  std::ostringstream stream;
+  format_event(stream, f, event{});
+
+  implementation::g_sink = [&out, f](event ev) { format_event(out, f, ev); };
 }
 
 
