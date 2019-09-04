@@ -11,6 +11,8 @@ enable_testing()
 
 # dependencies:
 
+find_package(fmt CONFIG REQUIRED)
+find_package(Results CONFIG REQUIRED)
 find_package(Kthread CONFIG REQUIRED)
 
 
