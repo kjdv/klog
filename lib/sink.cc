@@ -1,5 +1,7 @@
 #include <sink.hh>
 #include <cassert>
+#include <sstream>
+#include <iomanip>
 
 namespace klog {
 namespace {
@@ -23,6 +25,26 @@ constexpr const char *severity(loglevel l)
     return "NONE"; // ?
   }
 }
+
+template <typename T>
+std::string to_string(const T &v)
+{
+  std::ostringstream stream;
+  stream << v;
+  return stream.str();
+}
+
+template <>
+std::string to_string<event::timestamp_t>(const event::timestamp_t &v)
+{
+  std::time_t t = std::chrono::system_clock::to_time_t(v);
+  std::tm tm = *std::gmtime(&t);
+
+  auto us = std::chrono::duration_cast<std::chrono::microseconds>(v.time_since_epoch()).count();
+
+  return to_string(std::put_time(&tm, "%Y-%m-%dT%H:%M:%S")) + "." + std::to_string(us % 1000000);
+}
+
 
 }
 
@@ -52,9 +74,9 @@ void set_ostream_sink(std::string_view f, std::ostream &out)
 {
   implementation::g_sink = [&out, f](event ev) {
     out << fmt::format(f,
-                       fmt::arg("time", 123),
+                       fmt::arg("time", to_string(ev.time)),
                        fmt::arg("process", ev.process),
-                       fmt::arg("thread", 456),
+                       fmt::arg("thread", to_string(ev.thread)),
                        fmt::arg("level", severity(ev.severity)),
                        fmt::arg("tag", ev.tag),
                        fmt::arg("msg", ev.msg));
