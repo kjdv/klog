@@ -120,7 +120,7 @@ template <loglevel severity, typename... Args>
 void logger<min_level>::print(std::string_view fmt, Args&&... args)
 {
   implementation::formatter<min_level <= severity> f;
-  f.format(loglevel::debug, d_tag, fmt, std::forward<Args>(args)...);
+  f.format(severity, d_tag, fmt, std::forward<Args>(args)...);
 }
 
 
