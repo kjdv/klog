@@ -1,13 +1,10 @@
-#include <sink.hh>
+#include <consumer.hh>
 #include <cassert>
 #include <sstream>
 #include <iomanip>
 
 namespace klog {
 namespace {
-
-void null_sink(event ev)
-{}
 
 constexpr const char *severity(loglevel l)
 {
@@ -56,39 +53,45 @@ void format_event(std::ostream &out, std::string_view f, const event &ev)
                      fmt::arg("msg", ev.msg));
 }
 
+void validate_format(std::string_view f) // throws if f can't format events
+{
+  std::ostringstream stream;
+  format_event(stream, f, event{});
+}
 
 }
 
 namespace implementation {
 
-sink_t g_sink = null_sink;
+std::unique_ptr<consumer> g_sink = std::make_unique<noop_consumer>();
 
 }
 
-void set_sink(sink_t s)
+void set_consumer(std::unique_ptr<consumer> c)
 {
-  assert(s);
-  implementation::g_sink = std::move(s);
+  assert(c);
+  implementation::g_sink = std::move(c);
 }
 
-void set_default_sink()
+void set_default_consumer()
 {
-  implementation::g_sink = null_sink;
+  implementation::g_sink = std::make_unique<noop_consumer>();
 }
 
-void set_ostream_sink(std::ostream &out)
+void noop_consumer::consume(const event &ev)
+{}
+
+ostream_consumer::ostream_consumer(std::ostream &out, std::string_view fmt)
+  : d_out(out)
+  , d_fmt(fmt)
 {
-  set_ostream_sink("{time} {process}:{thread} {level} [{tag}] {msg}\n", out);
+  validate_format(d_fmt);
 }
 
-void set_ostream_sink(std::string_view f, std::ostream &out)
+void ostream_consumer::consume(const event &ev)
 {
-  // this will validate the format string, throw an exception if it cant format events
-  // just a courtesy to the caller, has no other effect
-  std::ostringstream stream;
-  format_event(stream, f, event{});
-
-  implementation::g_sink = [&out, f](event ev) { format_event(out, f, ev); };
+  format_event(d_out, d_fmt, ev);
+  d_out << std::endl;
 }
 
 

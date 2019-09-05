@@ -1,7 +1,8 @@
 #include <logger.hh>
-#include <sink.hh>
+#include <consumer.hh>
 #include <gtest/gtest.h>
 #include <unistd.h>
+#include "test_consumer.hh"
 
 namespace klog {
 namespace  {
@@ -12,110 +13,100 @@ static_assert(loglevel::warning > loglevel::info);
 static_assert(loglevel::error > loglevel::warning);
 static_assert(loglevel::none > loglevel::error);
 
-using namespace implementation;
 
-struct fake_sink
+TEST(logger_test, all_enabled)
 {
-  event last_event;
+  test::fixture fx;
 
-  void operator()(event ev)
-  {
-    last_event = std::move(ev);
-  }
-};
-
-class logger_test : public testing::Test
-{
-public:
-  fake_sink fs;
-
-  void SetUp() override
-  {
-    set_sink([this](auto && ev) { fs(ev); });
-  }
-
-  void TearDown() override
-  {
-    set_default_sink();
-  }
-};
-
-TEST_F(logger_test, all_enabled)
-{
   logger<loglevel::all> l("test");
   l.debug("the number {}", 42);
 
-  EXPECT_EQ("the number 42", fs.last_event.msg);
+  EXPECT_EQ("the number 42", fx.last_event.msg);
 }
 
-TEST_F(logger_test, debug_enabled)
+TEST(logger_test, debug_enabled)
 {
+  test::fixture fx;
+
   logger<loglevel::debug> l("test");
   l.debug("the number {}", 42);
 
-  EXPECT_EQ("the number 42", fs.last_event.msg);
+  EXPECT_EQ("the number 42", fx.last_event.msg);
 }
 
-TEST_F(logger_test, debug_disabled)
+TEST(logger_test, debug_disabled)
 {
-  fs.last_event.msg = "scramble";
+  test::fixture fx;
+
+  fx.last_event.msg = "scramble";
   logger<loglevel::info> l("test");
   l.debug("the number {}", 42);
 
-  EXPECT_EQ("scramble", fs.last_event.msg);
+  EXPECT_EQ("scramble", fx.last_event.msg);
 }
 
-TEST_F(logger_test, info_enabled)
+TEST(logger_test, info_enabled)
 {
+  test::fixture fx;
+
   logger<loglevel::info> l("test");
   l.info("the number {}", 42);
 
-  EXPECT_EQ("the number 42", fs.last_event.msg);
+  EXPECT_EQ("the number 42", fx.last_event.msg);
 }
 
-TEST_F(logger_test, info_disabled)
+TEST(logger_test, info_disabled)
 {
-  fs.last_event.msg = "scramble";
+  test::fixture fx;
+
+  fx.last_event.msg = "scramble";
   logger<loglevel::warning> l("test");
   l.info("the number {}", 42);
 
-  EXPECT_EQ("scramble", fs.last_event.msg);
+  EXPECT_EQ("scramble", fx.last_event.msg);
 }
 
-TEST_F(logger_test, warning_enabled)
+TEST(logger_test, warning_enabled)
 {
+  test::fixture fx;
+
   logger<loglevel::warning> l("test");
   l.warning("the number {}", 42);
 
-  EXPECT_EQ("the number 42", fs.last_event.msg);
+  EXPECT_EQ("the number 42", fx.last_event.msg);
 }
 
-TEST_F(logger_test, warning_disabled)
+TEST(logger_test, warning_disabled)
 {
-  fs.last_event.msg = "scramble";
+  test::fixture fx;
+
+  fx.last_event.msg = "scramble";
   logger<loglevel::error> l("test");
   l.warning("the number {}", 42);
 
-  EXPECT_EQ("scramble", fs.last_event.msg);
+  EXPECT_EQ("scramble", fx.last_event.msg);
 }
 
-TEST_F(logger_test, error_enabled)
+TEST(logger_test, error_enabled)
 {
+  test::fixture fx;
+
   logger<loglevel::error> l("test");
   l.error("the number {}", 42);
 
-  EXPECT_EQ("the number 42", fs.last_event.msg);
+  EXPECT_EQ("the number 42", fx.last_event.msg);
 }
 
-TEST_F(logger_test, error_disabled)
+TEST(logger_test, error_disabled)
 {
-  fs.last_event.msg = "scramble";
+  test::fixture fx;
+
+  fx.last_event.msg = "scramble";
   logger<loglevel::none> l("test");
   l.error("the number {}", 42);
 
-  EXPECT_EQ("scramble", fs.last_event.msg);
+  EXPECT_EQ("scramble", fx.last_event.msg);
 }
-
 
 }
 }
