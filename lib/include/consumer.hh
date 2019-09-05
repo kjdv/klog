@@ -20,7 +20,7 @@ struct event
   timestamp_t      time{};
   loglevel         severity{};
   std::string_view tag{};
-  std::string      msg{};
+  std::string_view msg{};
 };
 
 class consumer

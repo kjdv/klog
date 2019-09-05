@@ -37,11 +37,11 @@ private:
   template <loglevel severity, typename... Args>
   void print(std::string_view fmt, Args&&... args);
 
-  std::string_view d_tag;
+  std::string d_tag;
 };
 
 namespace implementation {
-void post(loglevel severity, std::string_view tag, std::string msg);
+void post(loglevel severity, std::string_view tag, std::string_view msg);
 }
 
 
@@ -86,7 +86,11 @@ template <loglevel severity, typename... Args>
 void logger<min_level>::print(std::string_view f, Args&&... args)
 {
   if constexpr (min_level <= severity)
-    implementation::post(severity, d_tag, fmt::format(f, std::forward<Args>(args)...));
+  {
+    fmt::memory_buffer buf;
+    fmt::format_to(buf, f, std::forward<Args>(args)...);
+    implementation::post(severity, d_tag, std::string_view(buf.data(), buf.size()));
+  }
 }
 
 

@@ -7,7 +7,7 @@ namespace implementation {
 
 extern std::unique_ptr<consumer> g_sink; // defined in consumer.cc
 
-void post(klog::loglevel severity, std::string_view tag, std::string msg)
+void post(klog::loglevel severity, std::string_view tag, std::string_view msg)
 {
   static int pid = getpid();
 
@@ -17,7 +17,7 @@ void post(klog::loglevel severity, std::string_view tag, std::string msg)
                std::chrono::system_clock::now(),
                severity,
                tag,
-               std::move(msg)});
+               msg});
 }
 
 }
