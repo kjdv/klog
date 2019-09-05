@@ -3,8 +3,22 @@
 #include "logger.hh"
 #include <functional>
 #include <iostream>
+#include <chrono>
+#include <thread>
 
 namespace klog {
+
+struct event
+{
+  using timestamp_t = std::chrono::time_point<std::chrono::system_clock>;
+
+  int process{};
+  std::thread::id thread{};
+  timestamp_t time{};
+  loglevel severity{};
+  std::string_view tag{};
+  std::string msg{};
+};
 
 using sink_t = std::function<void(event ev)>;
 
