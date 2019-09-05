@@ -94,5 +94,16 @@ void ostream_consumer::consume(const event &ev)
   d_out << std::endl;
 }
 
+temp_override_consumer::temp_override_consumer(std::unique_ptr<consumer> consumer)
+  : d_restore(std::move(implementation::g_sink))
+{
+  implementation::g_sink = std::move(consumer);
+}
+
+temp_override_consumer::~temp_override_consumer()
+{
+  implementation::g_sink = std::move(d_restore);
+}
+
 
 }

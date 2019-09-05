@@ -26,14 +26,9 @@ private:
 }
 
 fixture::fixture()
-{
-  set_consumer<fake_consumer>(&last_event);
-}
+  : d_override(std::make_unique<fake_consumer>(&last_event))
+{}
 
-fixture::~fixture()
-{
-  set_default_consumer();
-}
 
 }
 }

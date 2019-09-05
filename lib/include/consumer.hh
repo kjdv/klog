@@ -48,13 +48,25 @@ public:
 class ostream_consumer : public consumer
 {
 public:
-  ostream_consumer(std::ostream &out,
+  explicit ostream_consumer(std::ostream &out,
                    std::string_view fmt = "{time} {process}:{thread} {level} [{tag}] {msg}");
 
   void consume(const event &ev) override;
 private:
   std::ostream &d_out;
   std::string d_fmt;
+};
+
+// useful for testing, to use a temp override for the global consumer
+class temp_override_consumer
+{
+public:
+  explicit temp_override_consumer(std::unique_ptr<consumer> consumer);
+
+  ~temp_override_consumer();
+
+private:
+  std::unique_ptr<consumer> d_restore;
 };
 
 }
