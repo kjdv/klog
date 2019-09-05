@@ -55,27 +55,7 @@ private:
 };
 
 namespace implementation {
-
 void post(loglevel severity, std::string_view tag, std::string msg);
-
-template <bool enabled>
-struct formatter
-{
-  template<typename... Args>
-  void format(loglevel severity, std::string_view tag, std::string_view fmt, Args&&... args) const
-  {
-    post(severity, tag, fmt::format(fmt, std::forward<Args>(args)...));
-  }
-};
-
-template <>
-struct formatter<false>
-{
-  template<typename... Args>
-  void format(loglevel, std::string_view, std::string_view, Args&&...) const
-  {}
-};
-
 }
 
 
@@ -117,10 +97,10 @@ void logger<min_level>::error(std::string_view fmt, Args&&... args)
 
 template <loglevel min_level>
 template <loglevel severity, typename... Args>
-void logger<min_level>::print(std::string_view fmt, Args&&... args)
+void logger<min_level>::print(std::string_view f, Args&&... args)
 {
-  implementation::formatter<min_level <= severity> f;
-  f.format(severity, d_tag, fmt, std::forward<Args>(args)...);
+  if constexpr (min_level <= severity)
+    implementation::post(severity, d_tag, fmt::format(f, std::forward<Args>(args)...));
 }
 
 

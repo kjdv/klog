@@ -16,6 +16,6 @@ target_include_directories(klog
 
 
 target_link_libraries(klog
-    PUBLIC Kthread::kthread fmt::fmt fmt::fmt-header-only
+    PUBLIC Kthread::kthread fmt::fmt
 )
 
