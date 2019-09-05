@@ -11,7 +11,7 @@ public:
   event last_event;
 
 private:
-  temp_override_consumer d_override;
+  consumer_override_guard d_override;
 };
 
 }
