@@ -73,5 +73,19 @@ TEST(ostream_consumer, loglevel_is_respected)
   EXPECT_EQ(t, "printed");
 }
 
+TEST(ostream_consumer, produces_process_and_thread_id)
+{
+  std::stringstream stream;
+  consumer_override_guard g(std::make_unique<ostream_consumer>(stream, loglevel::all, "{process} {thread}"));
+
+  implementation::post(loglevel::info, "", "");
+
+  int p;
+  std::string t;
+  stream >> p >> t;
+  EXPECT_EQ(getpid(), p);
+  EXPECT_EQ(to_string(std::this_thread::get_id()), t);
+}
+
 }
 }

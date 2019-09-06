@@ -63,6 +63,18 @@ private:
   std::mutex    d_mut;
 };
 
+// publishes on a subthread
+class thread_consumer : public consumer
+{
+public:
+  explicit thread_consumer(std::unique_ptr<consumer> delegate);
+
+  void consume(const event &ev) override;
+
+private:
+  std::unique_ptr<consumer> d_delegate;
+};
+
 // useful for testing, to use a temp override for the global consumer
 class consumer_override_guard
 {
