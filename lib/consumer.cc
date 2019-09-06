@@ -3,6 +3,7 @@
 #include <iomanip>
 #include <sstream>
 #include "sink.hh"
+#include <fmt/chrono.h>
 
 namespace klog {
 namespace {
@@ -26,30 +27,32 @@ constexpr const char* severity(loglevel l)
   }
 }
 
-template <typename T>
-std::string to_string(const T& v)
+fmt::memory_buffer put_time(const event::timestamp_t& v)
 {
-  std::ostringstream stream;
-  stream << v;
-  return stream.str();
-}
+  fmt::memory_buffer buf;
 
-template <>
-std::string to_string<event::timestamp_t>(const event::timestamp_t& v)
-{
   std::time_t t  = std::chrono::system_clock::to_time_t(v);
-  std::tm     tm = *std::gmtime(&t);
+  std::tm     tm = fmt::gmtime(t);
 
-  auto us = std::chrono::duration_cast<std::chrono::microseconds>(v.time_since_epoch()).count();
+  auto us = std::chrono::duration_cast<std::chrono::microseconds>(v.time_since_epoch()).count() % 1000000;
 
-  return to_string(std::put_time(&tm, "%Y-%m-%dT%H:%M:%S")) + "." + std::to_string(us % 1000000);
+  fmt::format_to(buf, "{:0>4d}-{:0>2d}-{:0>2d}T{:0>2d}:{:0>2d}:{:0>2d}.{:0>6d}",
+                 tm.tm_year + 1900,
+                 tm.tm_mon + 1,
+                 tm.tm_mday,
+                 tm.tm_hour,
+                 tm.tm_min,
+                 tm.tm_sec,
+                 us);
+  return buf;
 }
 
 void format_event(std::ostream& out, std::string_view f, const event& ev)
 {
   fmt::memory_buffer buf;
+  auto time = put_time(ev.timestamp);
   fmt::format_to(buf, f,
-                 fmt::arg("time", to_string(ev.time)),
+                 fmt::arg("time", std::string_view(time.data(), time.size())),
                  fmt::arg("process", ev.process),
                  fmt::arg("thread", ev.thread),
                  fmt::arg("severity", severity(ev.severity)),

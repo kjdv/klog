@@ -20,36 +20,26 @@ TEST(sink_test, post_connects_to_set_sink)
   EXPECT_EQ("tag", fx.last_event.tag);
   EXPECT_EQ("message", fx.last_event.msg);
 
-  EXPECT_GE(fx.last_event.time, before);
-  EXPECT_LE(fx.last_event.time, after);
+  EXPECT_GE(fx.last_event.timestamp, before);
+  EXPECT_LE(fx.last_event.timestamp, after);
 }
 
 TEST(ostream_consumer, consumes)
 {
   std::stringstream stream;
   ostream_consumer consumer(stream);
-  implementation::consumer_override_guard g(std::make_unique<ostream_consumer>(stream));
 
-  implementation::post(loglevel::debug, "tag", "message");
+  event ev{
+    1,
+    2,
+    event::timestamp_t{} + std::chrono::microseconds(3),
+    loglevel::info,
+    "tag",
+    "message"
+  };
+  consumer.consume(ev);
 
-  std::istringstream istream(stream.str());
-  std::string item = "scramble";
-
-  // timestamp
-  stream >> item;
-  // non-determnistic, skip check
-
-  // level
-  stream >> item;
-  EXPECT_EQ("DEBUG", item);
-
-  // tag
-  stream >> item;
-  EXPECT_EQ("[tag]", item);
-
-  // message
-  stream >> item;
-  EXPECT_EQ("message", item);
+  EXPECT_EQ("1970-01-01T00:00:00.000003 1:2 INFO [tag] message\n", stream.str()); // todo: fix microsecond precisision
 }
 
 TEST(ostream_consumer, loglevel_is_respected)
