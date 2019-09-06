@@ -47,7 +47,13 @@ std::string to_string<event::timestamp_t>(const event::timestamp_t& v)
 void format_event(std::ostream& out, std::string_view f, const event& ev)
 {
   fmt::memory_buffer buf;
-  fmt::format_to(buf, f, fmt::arg("time", to_string(ev.time)), fmt::arg("process", ev.process), fmt::arg("thread", to_string(ev.thread)), fmt::arg("severity", severity(ev.severity)), fmt::arg("tag", ev.tag), fmt::arg("msg", ev.msg));
+  fmt::format_to(buf, f,
+                 fmt::arg("time", to_string(ev.time)),
+                 fmt::arg("process", ev.process),
+                 fmt::arg("thread", to_string(ev.thread)),
+                 fmt::arg("severity", severity(ev.severity)),
+                 fmt::arg("tag", ev.tag),
+                 fmt::arg("msg", ev.msg));
   out << std::string_view(buf.data(), buf.size());
 }
 

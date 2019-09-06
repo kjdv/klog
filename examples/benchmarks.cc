@@ -16,7 +16,7 @@ void bm_enabled_log(benchmark::State& state) {
 BENCHMARK(bm_enabled_log);
 
 void bm_disabled_log(benchmark::State& state) {
-  logger<loglevel::debug> log("bm");
+  logger<loglevel::info> log("bm");
 
   for (auto _ : state)
     log.debug("benchmark this");
