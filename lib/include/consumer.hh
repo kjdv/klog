@@ -53,7 +53,7 @@ public:
   explicit ostream_consumer(
       std::ostream&    out,
       loglevel         min_level = loglevel::all,
-      std::string_view fmt       = "{time} {process}:{thread} {severity} [{tag}] {msg}");
+      std::string_view fmt       = "{time} {process}:{thread} {severity} [{tag}] {msg}\n");
 
   void consume(const event& ev) override;
 

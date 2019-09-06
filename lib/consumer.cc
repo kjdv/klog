@@ -58,7 +58,8 @@ void format_event(std::ostream& out, std::string_view f, const event& ev)
                  fmt::arg("severity", severity(ev.severity)),
                  fmt::arg("tag", ev.tag),
                  fmt::arg("msg", ev.msg));
-  out << std::string_view(buf.data(), buf.size());
+
+  out.write(buf.data(), buf.size());
 }
 
 void validate_format(std::string_view f) // throws if f can't format events
@@ -98,7 +99,7 @@ void ostream_consumer::consume(const event& ev)
   {
     lock_t l(d_mut);
     format_event(d_out, d_fmt, ev);
-    d_out << std::endl;
+    d_out.flush();
   }
 }
 
