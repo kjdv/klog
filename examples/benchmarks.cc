@@ -49,6 +49,25 @@ void bm_ostream_consumer(benchmark::State& state) {
 
 BENCHMARK(bm_ostream_consumer);
 
+void bm_threaded_consumer(benchmark::State& state) {
+  auto delegate = std::make_unique<noop_consumer>();
+  threaded_consumer consumer(std::move(delegate));
+
+  event ev{
+      1,
+      2,
+      std::chrono::system_clock::now(),
+      loglevel::info,
+      "tag",
+      "message",
+  };
+
+  for (auto _ : state)
+    consumer.consume(ev);
+}
+
+BENCHMARK(bm_threaded_consumer);
+
 
 }
 }
