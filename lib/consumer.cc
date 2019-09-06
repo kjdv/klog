@@ -103,4 +103,43 @@ void ostream_consumer::consume(const event& ev)
   }
 }
 
+threaded_consumer::threaded_consumer(std::unique_ptr<consumer> delegate)
+  : d_delegate(std::move(delegate))
+  , d_pool(1)
+{
+  assert(d_delegate);
+}
+
+void threaded_consumer::consume(const event &ev)
+{
+  // we need to take an actual copy of the event's string views
+  struct {
+    int process;
+    event::threadid_t thread;
+    event::timestamp_t timestamp;
+    loglevel severity;
+    std::string tag;
+    std::string msg;
+  } event_copy = {
+    ev.process,
+    ev.thread,
+    ev.timestamp,
+    ev.severity,
+    std::string(ev.tag),
+    std::string(ev.msg),
+  };
+
+  d_pool.post([this, ev = std::move(event_copy)] {
+    event event {
+      ev.process,
+      ev.thread,
+      ev.timestamp,
+      ev.severity,
+      ev.tag,
+      ev.msg,
+    };
+    d_delegate->consume(event);
+  });
+}
+
 } // namespace klog

@@ -69,5 +69,30 @@ TEST(ostream_consumer, produces_process_and_thread_id)
   EXPECT_EQ(getpid(), p);
 }
 
+TEST(threaded_consumer, consumes)
+{
+  std::stringstream stream;
+  {
+    auto delegate = std::make_unique<ostream_consumer>(stream);
+    threaded_consumer consumer(std::move(delegate));
+
+    event ev{
+        1,
+        2,
+        event::timestamp_t{} + std::chrono::microseconds(3),
+        loglevel::info,
+        "tag",
+        "message"
+    };
+    consumer.consume(ev);
+
+    // going out of scope, destructors called, buffers flushed
+  }
+
+
+  EXPECT_EQ("1970-01-01T00:00:00.000003 1:2 INFO [tag] message\n", stream.str()); // todo: fix microsecond precisision
+}
+
+
 }
 }

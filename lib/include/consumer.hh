@@ -8,6 +8,7 @@
 #include <type_traits>
 #include <mutex>
 #include <cstdint>
+#include <kthread/threadpool.hh>
 
 namespace klog {
 
@@ -62,6 +63,19 @@ private:
   loglevel      d_minlevel;
   std::string   d_fmt;
   std::mutex    d_mut;
+};
+
+// does the actual logging on another thread
+class threaded_consumer : public consumer
+{
+public:
+  explicit threaded_consumer(std::unique_ptr<consumer> delegate);
+
+  void consume(const event &ev) override;
+
+private:
+  std::unique_ptr<consumer> d_delegate;
+  kthread::threadpool d_pool;
 };
 
 } // namespace klog

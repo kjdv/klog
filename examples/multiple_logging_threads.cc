@@ -1,6 +1,7 @@
 #include <logger.hh>
 #include <consumer.hh>
 #include <iostream>
+#include <kthread/threadpool.hh>
 
 int main()
 {
@@ -10,10 +11,13 @@ int main()
 
   logger<loglevel::debug> log("sample");
 
-  log.debug("debug message {}", 1);
-  log.info("info message {}", 2);
-  log.warning("warning message {}", 3);
-  log.error("error message {}", 4);
+  kthread::threadpool pool;
+
+  for (int i = 0; i < 20; ++i)
+  {
+    pool.post([&log, i=i] { log.info("message number {}", i); });
+    std::this_thread::yield();
+  }
 
   return 0;
 }
