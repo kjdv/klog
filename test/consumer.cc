@@ -35,7 +35,8 @@ TEST(sink_test, post_connects_to_set_sink)
 TEST(ostream_consumer, consumes)
 {
   std::stringstream stream;
-  consumer_override_guard g(std::make_unique<ostream_consumer>(stream));
+  ostream_consumer consumer(stream);
+  implementation::consumer_override_guard g(std::make_unique<ostream_consumer>(stream));
 
   implementation::post(loglevel::debug, "tag", "message");
 
@@ -62,7 +63,7 @@ TEST(ostream_consumer, consumes)
 TEST(ostream_consumer, loglevel_is_respected)
 {
   std::stringstream stream;
-  consumer_override_guard g(std::make_unique<ostream_consumer>(stream, loglevel::warning, "{severity} {tag}"));
+  implementation::consumer_override_guard g(std::make_unique<ostream_consumer>(stream, loglevel::warning, "{severity} {tag}"));
 
   implementation::post(loglevel::info, "ignored", "");
   implementation::post(loglevel::warning, "printed", "");
@@ -76,7 +77,7 @@ TEST(ostream_consumer, loglevel_is_respected)
 TEST(ostream_consumer, produces_process_and_thread_id)
 {
   std::stringstream stream;
-  consumer_override_guard g(std::make_unique<ostream_consumer>(stream, loglevel::all, "{process} {thread}"));
+  implementation::consumer_override_guard g(std::make_unique<ostream_consumer>(stream, loglevel::all, "{process} {thread}"));
 
   implementation::post(loglevel::info, "", "");
 

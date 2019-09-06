@@ -1,4 +1,5 @@
 #include <consumer.hh>
+#include <sink.hh>
 
 namespace klog {
 namespace test {
@@ -11,7 +12,7 @@ public:
   event last_event;
 
 private:
-  consumer_override_guard d_override;
+  implementation::consumer_override_guard d_override;
 };
 
 }

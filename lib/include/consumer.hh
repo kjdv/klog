@@ -5,8 +5,8 @@
 #include <functional>
 #include <memory>
 #include <ostream>
-#include <thread>
 #include <type_traits>
+#include <thread>
 #include <mutex>
 
 namespace klog {
@@ -61,30 +61,6 @@ private:
   loglevel      d_minlevel;
   std::string   d_fmt;
   std::mutex    d_mut;
-};
-
-// publishes on a subthread
-class thread_consumer : public consumer
-{
-public:
-  explicit thread_consumer(std::unique_ptr<consumer> delegate);
-
-  void consume(const event &ev) override;
-
-private:
-  std::unique_ptr<consumer> d_delegate;
-};
-
-// useful for testing, to use a temp override for the global consumer
-class consumer_override_guard
-{
-public:
-  explicit consumer_override_guard(std::unique_ptr<consumer> consumer);
-
-  ~consumer_override_guard();
-
-private:
-  std::unique_ptr<consumer> d_restore;
 };
 
 } // namespace klog

@@ -2,6 +2,8 @@
 #include <logger.hh>
 #include <consumer.hh>
 #include <fstream>
+#include <sink.hh>
+#include <unistd.h>
 
 namespace klog {
 namespace {
@@ -18,22 +20,35 @@ BENCHMARK(bm_enabled_log);
 void bm_disabled_log(benchmark::State& state) {
   logger<loglevel::info> log("bm");
 
+  // this should take 0 time, no overhead from disabled logs
   for (auto _ : state)
+  {
     log.debug("benchmark this");
+    log.debug("with {} formatting of numbers: {} {}", "some", 42, 3.14);
+  }
 }
 
 BENCHMARK(bm_disabled_log);
 
-void bm_ostream_log(benchmark::State& state) {
+void bm_ostream_consumer(benchmark::State& state) {
   std::ofstream f("/dev/null");
-  consumer_override_guard g(std::make_unique<ostream_consumer>(f));
-  logger<loglevel::info> log("bm");
+  ostream_consumer consumer(f);
+
+  event ev{
+    getpid(),
+    std::this_thread::get_id(),
+    std::chrono::system_clock::now(),
+    loglevel::info,
+    "tag",
+    "message",
+  };
 
   for (auto _ : state)
-    log.info("benchmark this");
+    consumer.consume(ev);
+
 }
 
-BENCHMARK(bm_ostream_log);
+BENCHMARK(bm_ostream_consumer);
 
 
 }

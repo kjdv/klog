@@ -2,6 +2,7 @@
 #include <consumer.hh>
 #include <iomanip>
 #include <sstream>
+#include "sink.hh"
 
 namespace klog {
 namespace {
@@ -65,12 +66,6 @@ void validate_format(std::string_view f) // throws if f can't format events
 
 } // namespace
 
-namespace implementation {
-
-std::unique_ptr<consumer> g_sink = std::make_unique<noop_consumer>();
-
-}
-
 void set_consumer(std::unique_ptr<consumer> c)
 {
   assert(c);
@@ -102,17 +97,6 @@ void ostream_consumer::consume(const event& ev)
     format_event(d_out, d_fmt, ev);
     d_out << std::endl;
   }
-}
-
-consumer_override_guard::consumer_override_guard(std::unique_ptr<consumer> consumer)
-  : d_restore(std::move(implementation::g_sink))
-{
-  implementation::g_sink = std::move(consumer);
-}
-
-consumer_override_guard::~consumer_override_guard()
-{
-  implementation::g_sink = std::move(d_restore);
 }
 
 } // namespace klog
