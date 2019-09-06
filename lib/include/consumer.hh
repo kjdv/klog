@@ -6,17 +6,18 @@
 #include <memory>
 #include <ostream>
 #include <type_traits>
-#include <thread>
 #include <mutex>
+#include <cstdint>
 
 namespace klog {
 
 struct event
 {
   using timestamp_t = std::chrono::time_point<std::chrono::system_clock>;
+  using threadid_t = uintptr_t;
 
   int              process{};
-  std::thread::id  thread{};
+  threadid_t       thread{};
   timestamp_t      time{};
   loglevel         severity{};
   std::string_view tag{};

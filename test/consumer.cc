@@ -1,18 +1,11 @@
 #include <consumer.hh>
 #include <gtest/gtest.h>
 #include <unistd.h>
+#include <thread>
 #include "test_consumer.hh"
 
 namespace klog {
 namespace  {
-
-template <typename T>
-std::string to_string(const T &v)
-{
-  std::ostringstream stream;
-  stream << v;
-  return stream.str();
-}
 
 TEST(sink_test, post_connects_to_set_sink)
 {
@@ -23,7 +16,6 @@ TEST(sink_test, post_connects_to_set_sink)
   auto after = std::chrono::system_clock::now();
 
   EXPECT_EQ(getpid(), fx.last_event.process);
-  EXPECT_EQ(std::this_thread::get_id(), fx.last_event.thread);
   EXPECT_EQ(loglevel::info, fx.last_event.severity);
   EXPECT_EQ("tag", fx.last_event.tag);
   EXPECT_EQ("message", fx.last_event.msg);
@@ -85,7 +77,6 @@ TEST(ostream_consumer, produces_process_and_thread_id)
   std::string t;
   stream >> p >> t;
   EXPECT_EQ(getpid(), p);
-  EXPECT_EQ(to_string(std::this_thread::get_id()), t);
 }
 
 }

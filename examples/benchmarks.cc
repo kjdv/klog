@@ -3,7 +3,6 @@
 #include <consumer.hh>
 #include <fstream>
 #include <sink.hh>
-#include <unistd.h>
 
 namespace klog {
 namespace {
@@ -35,8 +34,8 @@ void bm_ostream_consumer(benchmark::State& state) {
   ostream_consumer consumer(f);
 
   event ev{
-    getpid(),
-    std::this_thread::get_id(),
+    1,
+    2,
     std::chrono::system_clock::now(),
     loglevel::info,
     "tag",
