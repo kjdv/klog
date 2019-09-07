@@ -47,7 +47,7 @@ fmt::memory_buffer put_time(const event::timestamp_t& v)
   return buf;
 }
 
-void format_event(std::ostream& out, std::string_view f, const event& ev)
+fmt::memory_buffer format_event(std::string_view f, const event& ev)
 {
   fmt::memory_buffer buf;
   auto time = put_time(ev.timestamp);
@@ -59,13 +59,12 @@ void format_event(std::ostream& out, std::string_view f, const event& ev)
                  fmt::arg("tag", ev.tag),
                  fmt::arg("msg", ev.msg));
 
-  out.write(buf.data(), buf.size());
+  return buf;
 }
 
 void validate_format(std::string_view f) // throws if f can't format events
 {
-  std::ostringstream stream;
-  format_event(stream, f, event{});
+  format_event(f, event{});
 }
 
 } // namespace
@@ -98,7 +97,8 @@ void ostream_consumer::consume(const event& ev)
   if(ev.severity >= d_minlevel)
   {
     lock_t l(d_mut);
-    format_event(d_out, d_fmt, ev);
+    auto buf = format_event(d_fmt, ev);
+    d_out.write(buf.data(), buf.size());
     d_out.flush();
   }
 }

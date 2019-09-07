@@ -56,6 +56,11 @@ TEST(ostream_consumer, loglevel_is_respected)
   EXPECT_EQ(t, "printed");
 }
 
+TEST(ostream_consumer, validated_fmt)
+{
+  EXPECT_THROW(ostream_consumer(std::cout, loglevel::all, "{nosuchfield"), std::exception);
+}
+
 TEST(ostream_consumer, produces_process_and_thread_id)
 {
   std::stringstream stream;
