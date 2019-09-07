@@ -58,6 +58,7 @@ fmt::memory_buffer format_event(std::string_view f, const event& ev)
                  fmt::arg("thread", ev.thread),
                  fmt::arg("severity", severity(ev.severity)),
                  fmt::arg("tag", ev.tag),
+                 fmt::arg("context", ev.ctx),
                  fmt::arg("msg", ev.msg));
 
   return buf;

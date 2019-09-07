@@ -25,6 +25,7 @@ event_value event_value::from(const event &ev)
     ev.severity,
     std::string(ev.tag),
     std::string(ev.msg),
+    std::string(ev.ctx),
   };
 }
 
@@ -37,6 +38,7 @@ event event_value::as() const
     severity,
     tag,
     msg,
+    ctx,
   };
 }
 

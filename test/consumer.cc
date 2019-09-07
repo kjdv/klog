@@ -35,11 +35,12 @@ TEST(ostream_consumer, consumes)
     event::timestamp_t{} + std::chrono::microseconds(3),
     loglevel::info,
     "tag",
-    "message"
+    "message",
+    "ctx",
   };
   consumer.consume(ev);
 
-  EXPECT_EQ("1970-01-01T00:00:00.000003 1:2 INFO [tag] message\n", stream.str()); // todo: fix microsecond precisision
+  EXPECT_EQ("1970-01-01T00:00:00.000003 1:2 INFO [tag] [ctx] message\n", stream.str()); // todo: fix microsecond precisision
 }
 
 TEST(ostream_consumer, loglevel_is_respected)
@@ -87,7 +88,8 @@ TEST(threaded_consumer, consumes)
         event::timestamp_t{} + std::chrono::microseconds(3),
         loglevel::info,
         "tag",
-        "message"
+        "message",
+        "ctx",
     };
     consumer.consume(ev);
 
@@ -95,7 +97,7 @@ TEST(threaded_consumer, consumes)
   }
 
 
-  EXPECT_EQ("1970-01-01T00:00:00.000003 1:2 INFO [tag] message\n", stream.str());
+  EXPECT_EQ("1970-01-01T00:00:00.000003 1:2 INFO [tag] [ctx] message\n", stream.str());
 }
 
 std::string read_from(int fd)

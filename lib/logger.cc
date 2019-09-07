@@ -5,9 +5,6 @@
 #include <context.hh>
 
 namespace klog {
-namespace {
-
-}
 
 namespace implementation {
 
@@ -23,7 +20,8 @@ void post(klog::loglevel severity, std::string_view tag, std::string_view msg)
                         std::chrono::system_clock::now(),
                         severity,
                         tag,
-                        msg});
+                        msg,
+                        g_ctx});
 }
 
 }
