@@ -1,12 +1,11 @@
 #include <logger.hh>
 #include <consumer.hh>
-#include <iostream>
 
 int main()
 {
   using namespace klog;
 
-  set_consumer<ostream_consumer>(std::cout);
+  set_stdlog_consumer();
 
   logger<loglevel::debug> log("sample");
 

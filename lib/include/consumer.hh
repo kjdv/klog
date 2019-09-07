@@ -42,8 +42,13 @@ void set_consumer(Args&&... args)
   set_consumer(std::make_unique<T>(std::forward<Args>(args)...));
 }
 
-// shorthand for set_consumer(make_unique<fd_consumer>(
-//void set_stdout_consumer()
+// shorthand for set_consumer(make_unique<ostream_consumer>(std::cout))
+void set_stdout_consumer();
+// shorthand for set_consumer(make_unique<ostream_consumer>(std::cerr))
+void set_stderr_consumer();
+// shorthand for set_consumer(make_unique<ostream_consumer>(std::clog))
+void set_stdlog_consumer();
+
 
 class noop_consumer : public consumer
 {

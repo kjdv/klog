@@ -1,10 +1,10 @@
 #include <cassert>
 #include <consumer.hh>
 #include <iomanip>
-#include <sstream>
 #include "sink.hh"
 #include <unistd.h>
 #include <fmt/chrono.h>
+#include <iostream>
 
 namespace klog {
 namespace {
@@ -131,6 +131,21 @@ void threaded_consumer::consume(const event &ev)
   };
 
   d_pool.post(do_log);
+}
+
+void set_stdout_consumer()
+{
+  set_consumer(std::make_unique<ostream_consumer>(std::cout));
+}
+
+void set_stderr_consumer()
+{
+  set_consumer(std::make_unique<ostream_consumer>(std::cerr));
+}
+
+void set_stdlog_consumer()
+{
+  set_consumer(std::make_unique<ostream_consumer>(std::clog));
 }
 
 } // namespace klog

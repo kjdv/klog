@@ -6,7 +6,7 @@ int main()
 {
   using namespace klog;
 
-  auto delegate = std::make_unique<ostream_consumer>(std::cout);
+  auto delegate = std::make_unique<ostream_consumer>(std::clog);
   set_consumer<threaded_consumer>(std::move(delegate));
 
   logger<loglevel::debug> log("sample");
