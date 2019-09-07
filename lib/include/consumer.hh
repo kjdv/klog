@@ -42,6 +42,9 @@ void set_consumer(Args&&... args)
   set_consumer(std::make_unique<T>(std::forward<Args>(args)...));
 }
 
+// shorthand for set_consumer(make_unique<fd_consumer>(
+//void set_stdout_consumer()
+
 class noop_consumer : public consumer
 {
 public:
@@ -64,24 +67,6 @@ private:
   std::string   d_fmt;
   std::mutex    d_mut;
 };
-
-class fd_consumer : public consumer
-{
-public:
-  explicit fd_consumer(
-      int f,
-      loglevel         min_level = loglevel::all,
-      std::string_view fmt       = "{time} {process}:{thread} {severity} [{tag}] {msg}\n");
-
-  void consume(const event& ev) override;
-
-private:
-  int d_fd;
-  loglevel      d_minlevel;
-  std::string   d_fmt;
-  std::mutex    d_mut;
-};
-
 
 // does the actual logging on another thread
 class threaded_consumer : public consumer

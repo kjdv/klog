@@ -95,9 +95,21 @@ TEST(threaded_consumer, consumes)
   }
 
 
-  EXPECT_EQ("1970-01-01T00:00:00.000003 1:2 INFO [tag] message\n", stream.str()); // todo: fix microsecond precisision
+  EXPECT_EQ("1970-01-01T00:00:00.000003 1:2 INFO [tag] message\n", stream.str());
 }
 
+std::string read_from(int fd)
+{
+  std::string result;
+
+  enum {buf_size = 512};
+  char buf[buf_size];
+
+  auto r = ::read(fd, buf, buf_size);
+  if (r > 0)
+    result += std::string(buf, r);
+  return result;
+}
 
 }
 }
