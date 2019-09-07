@@ -19,8 +19,8 @@ void post(klog::loglevel severity, std::string_view tag, std::string_view msg)
                         tid,
                         std::chrono::system_clock::now(),
                         severity,
-                        tag,
-                        msg,
+                        std::string(tag),
+                        std::string(msg),
                         g_ctx});
 }
 

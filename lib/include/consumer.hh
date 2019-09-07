@@ -21,9 +21,9 @@ struct event
   threadid_t       thread{};
   timestamp_t      timestamp{};
   loglevel         severity{};
-  std::string_view tag{};
-  std::string_view msg{};
-  std::string_view ctx{};
+  std::string tag{};
+  std::string msg{};
+  std::string ctx{};
 };
 
 class consumer
@@ -31,7 +31,7 @@ class consumer
 public:
   virtual ~consumer() = default;
 
-  virtual void consume(const event& ev) = 0;
+  virtual void consume(event ev) = 0;
 };
 
 void set_consumer(std::unique_ptr<consumer> c);
@@ -54,7 +54,7 @@ void set_stdlog_consumer();
 class noop_consumer : public consumer
 {
 public:
-  void consume(const event& ev) override;
+  void consume(event ev) override;
 };
 
 class ostream_consumer : public consumer
@@ -65,7 +65,7 @@ public:
       loglevel         min_level = loglevel::all,
       std::string_view fmt       = "{time} {process}:{thread} {severity} [{tag}] [{context}] {msg}\n");
 
-  void consume(const event& ev) override;
+  void consume(event ev) override;
 
 private:
   std::ostream& d_out;
@@ -80,7 +80,7 @@ class threaded_consumer : public consumer
 public:
   explicit threaded_consumer(std::unique_ptr<consumer> delegate);
 
-  void consume(const event &ev) override;
+  void consume(event ev) override;
 
 private:
   std::unique_ptr<consumer> d_delegate;

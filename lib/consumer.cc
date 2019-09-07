@@ -82,7 +82,7 @@ void set_default_consumer()
   implementation::g_sink = std::make_unique<noop_consumer>();
 }
 
-void noop_consumer::consume(const event& ev)
+void noop_consumer::consume(event ev)
 {
 }
 
@@ -94,7 +94,7 @@ ostream_consumer::ostream_consumer(std::ostream& out, loglevel min_level, std::s
   validate_format(d_fmt);
 }
 
-void ostream_consumer::consume(const event& ev)
+void ostream_consumer::consume(event ev)
 {
   if(ev.severity >= d_minlevel)
   {
@@ -112,12 +112,11 @@ threaded_consumer::threaded_consumer(std::unique_ptr<consumer> delegate)
   assert(d_delegate);
 }
 
-void threaded_consumer::consume(const event &ev)
+void threaded_consumer::consume(event ev)
 {
   // we need copies of thes
-  auto ev_value = implementation::event_value::from(ev);
-  auto do_log = [this, ev_value = std::move(ev_value)]{
-    this->d_delegate->consume(ev_value.as());
+  auto do_log = [this, evm = std::move(ev)]{
+    this->d_delegate->consume(std::move(evm));
   };
 
   d_pool.post(do_log);
