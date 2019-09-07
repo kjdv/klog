@@ -6,10 +6,9 @@ foreach(example ${examples})
   add_executable(${example_name} ${example})
   target_link_libraries(${example_name} PUBLIC klog)
 
-  if (${example_name} STREQUAL "benchmarks")
-      target_link_libraries(${example_name} PUBLIC benchmark::benchmark benchmark::benchmark_main)
-  endif()
-  
   add_test(example.${example_name} ${example_name})
   
 endforeach()
+
+target_link_libraries(benchmarks PUBLIC benchmark::benchmark benchmark::benchmark_main)
+
