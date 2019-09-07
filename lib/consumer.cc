@@ -113,21 +113,10 @@ threaded_consumer::threaded_consumer(std::unique_ptr<consumer> delegate)
 
 void threaded_consumer::consume(const event &ev)
 {
-  // we need copies of these
-  std::string tag(ev.tag);
-  std::string msg(ev.msg);
-
-  auto do_log = [this, tag = std::move(tag), msg = std::move(msg), process = ev.process, thread = ev.thread, timestamp = ev.timestamp, severity = ev.severity] {
-    event ev{
-      process,
-      thread,
-      timestamp,
-      severity,
-      tag,
-      msg
-    };
-
-    this->d_delegate->consume(ev);
+  // we need copies of thes
+  auto ev_value = implementation::event_value::from(ev);
+  auto do_log = [this, ev_value = std::move(ev_value)]{
+    this->d_delegate->consume(ev_value.as());
   };
 
   d_pool.post(do_log);

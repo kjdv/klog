@@ -2,8 +2,13 @@
 #include <unistd.h>
 #include <thread>
 #include "sink.hh"
+#include <context.hh>
 
 namespace klog {
+namespace {
+
+}
+
 namespace implementation {
 
 void post(klog::loglevel severity, std::string_view tag, std::string_view msg)

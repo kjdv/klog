@@ -9,7 +9,7 @@ class fixture
 public:
   explicit fixture();
 
-  event last_event;
+  implementation::event_value last_event;
 
 private:
   implementation::consumer_override_guard d_override;

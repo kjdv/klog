@@ -9,6 +9,8 @@
 #include <mutex>
 #include <cstdint>
 #include <kthread/threadpool.hh>
+#include <vector>
+#include <utility>
 
 namespace klog {
 

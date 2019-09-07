@@ -16,6 +16,30 @@ consumer_override_guard::~consumer_override_guard()
   g_sink = std::move(d_restore);
 }
 
+event_value event_value::from(const event &ev)
+{
+  return event_value{
+    ev.process,
+    ev.thread,
+    ev.timestamp,
+    ev.severity,
+    std::string(ev.tag),
+    std::string(ev.msg),
+  };
+}
+
+event event_value::as() const
+{
+  return event{
+    process,
+    thread,
+    timestamp,
+    severity,
+    tag,
+    msg,
+  };
+}
+
 
 }
 }
