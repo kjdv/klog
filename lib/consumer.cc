@@ -3,6 +3,7 @@
 #include <iomanip>
 #include <sstream>
 #include "sink.hh"
+#include <unistd.h>
 #include <fmt/chrono.h>
 
 namespace klog {
@@ -102,6 +103,33 @@ void ostream_consumer::consume(const event& ev)
     d_out.flush();
   }
 }
+
+fd_consumer::fd_consumer(int fd, loglevel min_level, std::string_view fmt)
+  : d_fd(fd)
+  , d_minlevel(min_level)
+  , d_fmt(fmt)
+{
+  validate_format(d_fmt);
+}
+
+void fd_consumer::consume(const event& ev)
+{
+  if(ev.severity >= d_minlevel)
+  {
+    lock_t l(d_mut);
+    auto buf = format_event(d_fmt, ev);
+
+    ssize_t w = 0;
+    while (w < buf.size())
+    {
+      ssize_t t = ::write(d_fd, buf.data() + w, buf.size() - w);
+      if (t <= 0)
+        return;
+      w += t;
+    }
+  }
+}
+
 
 threaded_consumer::threaded_consumer(std::unique_ptr<consumer> delegate)
   : d_delegate(std::move(delegate))

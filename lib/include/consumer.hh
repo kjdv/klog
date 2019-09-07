@@ -65,6 +65,24 @@ private:
   std::mutex    d_mut;
 };
 
+class fd_consumer : public consumer
+{
+public:
+  explicit fd_consumer(
+      int f,
+      loglevel         min_level = loglevel::all,
+      std::string_view fmt       = "{time} {process}:{thread} {severity} [{tag}] {msg}\n");
+
+  void consume(const event& ev) override;
+
+private:
+  int d_fd;
+  loglevel      d_minlevel;
+  std::string   d_fmt;
+  std::mutex    d_mut;
+};
+
+
 // does the actual logging on another thread
 class threaded_consumer : public consumer
 {
