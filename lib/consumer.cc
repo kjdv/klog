@@ -114,8 +114,7 @@ threaded_consumer::threaded_consumer(std::unique_ptr<consumer> delegate)
 
 void threaded_consumer::consume(event ev)
 {
-  // we need copies of thes
-  auto do_log = [this, evm = std::move(ev)]{
+  auto do_log = [this, evm = std::move(ev)] () mutable {
     this->d_delegate->consume(std::move(evm));
   };
 
