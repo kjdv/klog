@@ -51,22 +51,22 @@ fmt::memory_buffer put_time(const event::timestamp_t& v)
 fmt::memory_buffer format_event(std::string_view f, const event& ev)
 {
   fmt::memory_buffer buf;
-  auto time = put_time(ev.timestamp);
+  auto time = put_time(ev.timestamp());
   fmt::format_to(buf, f,
                  fmt::arg("time", std::string_view(time.data(), time.size())),
-                 fmt::arg("process", ev.process),
-                 fmt::arg("thread", ev.thread),
-                 fmt::arg("severity", severity(ev.severity)),
-                 fmt::arg("tag", ev.tag),
-                 fmt::arg("context", ev.ctx),
-                 fmt::arg("msg", ev.msg));
+                 fmt::arg("process", ev.process()),
+                 fmt::arg("thread", ev.thread()),
+                 fmt::arg("severity", severity(ev.severity())),
+                 fmt::arg("tag", ev.tag()),
+                 fmt::arg("context", ev.context()),
+                 fmt::arg("msg", ev.message()));
 
   return buf;
 }
 
 void validate_format(std::string_view f) // throws if f can't format events
 {
-  format_event(f, event{});
+  format_event(f, event(int{}, event::threadid_t{}, event::timestamp_t{}, loglevel::info, "", "", ""));
 }
 
 } // namespace
@@ -96,7 +96,7 @@ ostream_consumer::ostream_consumer(std::ostream& out, loglevel min_level, std::s
 
 void ostream_consumer::consume(event ev)
 {
-  if(ev.severity >= d_minlevel)
+  if(ev.severity() >= d_minlevel)
   {
     lock_t l(d_mut);
     auto buf = format_event(d_fmt, ev);
@@ -119,7 +119,7 @@ void threaded_consumer::consume(event ev)
     this->d_delegate->consume(std::move(evm));
   };
 
-  d_pool.post(do_log);
+  d_pool.post(std::move(do_log));
 }
 
 void set_stdout_consumer()
@@ -135,6 +135,22 @@ void set_stderr_consumer()
 void set_stdlog_consumer()
 {
   set_consumer(std::make_unique<ostream_consumer>(std::clog));
+}
+
+event::event(int process, event::threadid_t thread, event::timestamp_t ts, loglevel severity, std::string_view tag, std::string_view msg, std::string_view ctx) noexcept
+  : d_process(process)
+  , d_thread(thread)
+  , d_timestamp(ts)
+  , d_severity(severity)
+  , d_msg_offset(tag.size())
+  , d_ctx_offset(tag.size() + msg.size())
+{
+  // trick: by putting all strings in the same buffer we only need one allocation
+  d_buffer.resize(tag.size() + msg.size() + ctx.size());
+
+  std::copy(tag.begin(), tag.end(), d_buffer.begin());
+  std::copy(msg.begin(), msg.end(), d_buffer.begin() + tag.size());
+  std::copy(ctx.begin(), ctx.end(), d_buffer.begin() + tag.size() + msg.size());
 }
 
 } // namespace klog

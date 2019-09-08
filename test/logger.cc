@@ -21,7 +21,7 @@ TEST(logger_test, all_enabled)
   logger<loglevel::all> l("test");
   l.debug("the number {}", 42);
 
-  EXPECT_EQ("the number 42", fx.last_event.msg);
+  EXPECT_EQ("the number 42", fx.last_event.message());
 }
 
 TEST(logger_test, debug_enabled)
@@ -31,18 +31,17 @@ TEST(logger_test, debug_enabled)
   logger<loglevel::debug> l("test");
   l.debug("the number {}", 42);
 
-  EXPECT_EQ("the number 42", fx.last_event.msg);
+  EXPECT_EQ("the number 42", fx.last_event.message());
 }
 
 TEST(logger_test, debug_disabled)
 {
   test::fixture fx;
 
-  fx.last_event.msg = "scramble";
   logger<loglevel::info> l("test");
   l.debug("the number {}", 42);
 
-  EXPECT_EQ("scramble", fx.last_event.msg);
+  EXPECT_EQ("", fx.last_event.message());
 }
 
 TEST(logger_test, info_enabled)
@@ -52,18 +51,17 @@ TEST(logger_test, info_enabled)
   logger<loglevel::info> l("test");
   l.info("the number {}", 42);
 
-  EXPECT_EQ("the number 42", fx.last_event.msg);
+  EXPECT_EQ("the number 42", fx.last_event.message());
 }
 
 TEST(logger_test, info_disabled)
 {
   test::fixture fx;
 
-  fx.last_event.msg = "scramble";
   logger<loglevel::warning> l("test");
   l.info("the number {}", 42);
 
-  EXPECT_EQ("scramble", fx.last_event.msg);
+  EXPECT_EQ("", fx.last_event.message());
 }
 
 TEST(logger_test, warning_enabled)
@@ -73,18 +71,17 @@ TEST(logger_test, warning_enabled)
   logger<loglevel::warning> l("test");
   l.warning("the number {}", 42);
 
-  EXPECT_EQ("the number 42", fx.last_event.msg);
+  EXPECT_EQ("the number 42", fx.last_event.message());
 }
 
 TEST(logger_test, warning_disabled)
 {
   test::fixture fx;
 
-  fx.last_event.msg = "scramble";
   logger<loglevel::error> l("test");
   l.warning("the number {}", 42);
 
-  EXPECT_EQ("scramble", fx.last_event.msg);
+  EXPECT_EQ("", fx.last_event.message());
 }
 
 TEST(logger_test, error_enabled)
@@ -94,18 +91,17 @@ TEST(logger_test, error_enabled)
   logger<loglevel::error> l("test");
   l.error("the number {}", 42);
 
-  EXPECT_EQ("the number 42", fx.last_event.msg);
+  EXPECT_EQ("the number 42", fx.last_event.message());
 }
 
 TEST(logger_test, error_disabled)
 {
   test::fixture fx;
 
-  fx.last_event.msg = "scramble";
   logger<loglevel::none> l("test");
   l.error("the number {}", 42);
 
-  EXPECT_EQ("scramble", fx.last_event.msg);
+  EXPECT_EQ("", fx.last_event.message());
 }
 
 }

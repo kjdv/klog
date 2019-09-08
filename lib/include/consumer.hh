@@ -12,18 +12,59 @@
 
 namespace klog {
 
-struct event
+class event
 {
+public:
   using timestamp_t = std::chrono::time_point<std::chrono::system_clock>;
   using threadid_t = uintptr_t;
 
-  int              process{};
-  threadid_t       thread{};
-  timestamp_t      timestamp{};
-  loglevel         severity{};
-  std::string tag{};
-  std::string msg{};
-  std::string ctx{};
+  event(int process, threadid_t thread, timestamp_t ts, loglevel severity,
+        std::string_view tag, std::string_view msg, std::string_view ctx) noexcept;
+
+  int process() const
+  {
+    return d_process;
+  }
+
+  threadid_t thread() const
+  {
+    return d_thread;
+  }
+
+  timestamp_t timestamp() const
+  {
+    return d_timestamp;
+  }
+
+  loglevel severity() const
+  {
+    return d_severity;
+  }
+
+  std::string_view tag() const
+  {
+    return std::string_view(d_buffer.data(), d_msg_offset);
+  }
+
+  std::string_view message() const
+  {
+    return std::string_view(d_buffer.data() + d_msg_offset, d_ctx_offset - d_msg_offset);
+  }
+
+  std::string_view context() const
+  {
+    return std::string_view(d_buffer.data() + d_ctx_offset, d_buffer.size() - d_ctx_offset);
+  }
+
+private:
+  int              d_process{};
+  threadid_t       d_thread{};
+  timestamp_t      d_timestamp{};
+  loglevel         d_severity{};
+
+  std::string      d_buffer{};
+  size_t d_msg_offset{};
+  size_t d_ctx_offset{};
 };
 
 class consumer

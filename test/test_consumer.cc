@@ -26,7 +26,8 @@ private:
 }
 
 fixture::fixture()
-  : d_override(std::make_unique<fake_consumer>(&last_event))
+  : last_event(int{}, event::threadid_t{}, event::timestamp_t{}, loglevel{}, "", "", "")
+  , d_override(std::make_unique<fake_consumer>(&last_event))
 {}
 
 
