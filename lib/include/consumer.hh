@@ -21,40 +21,19 @@ public:
   event(int process, threadid_t thread, timestamp_t ts, loglevel severity,
         std::string_view tag, std::string_view msg, std::string_view ctx) noexcept;
 
-  int process() const
-  {
-    return d_process;
-  }
+  int process() const;
 
-  threadid_t thread() const
-  {
-    return d_thread;
-  }
+  threadid_t thread() const;
 
-  timestamp_t timestamp() const
-  {
-    return d_timestamp;
-  }
+  timestamp_t timestamp() const;
 
-  loglevel severity() const
-  {
-    return d_severity;
-  }
+  loglevel severity() const;
 
-  std::string_view tag() const
-  {
-    return std::string_view(d_buffer.data(), d_msg_offset);
-  }
+  std::string_view tag() const;
 
-  std::string_view message() const
-  {
-    return std::string_view(d_buffer.data() + d_msg_offset, d_ctx_offset - d_msg_offset);
-  }
+  std::string_view message() const;
 
-  std::string_view context() const
-  {
-    return std::string_view(d_buffer.data() + d_ctx_offset, d_buffer.size() - d_ctx_offset);
-  }
+  std::string_view context() const;
 
 private:
   int              d_process{};

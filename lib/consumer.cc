@@ -153,4 +153,39 @@ event::event(int process, event::threadid_t thread, event::timestamp_t ts, logle
   std::copy(ctx.begin(), ctx.end(), d_buffer.begin() + tag.size() + msg.size());
 }
 
+int event::process() const
+{
+  return d_process;
+}
+
+event::threadid_t event::thread() const
+{
+  return d_thread;
+}
+
+event::timestamp_t event::timestamp() const
+{
+  return d_timestamp;
+}
+
+loglevel event::severity() const
+{
+  return d_severity;
+}
+
+std::string_view event::tag() const
+{
+  return std::string_view(d_buffer.data(), d_msg_offset);
+}
+
+std::string_view event::message() const
+{
+  return std::string_view(d_buffer.data() + d_msg_offset, d_ctx_offset - d_msg_offset);
+}
+
+std::string_view event::context() const
+{
+  return std::string_view(d_buffer.data() + d_ctx_offset, d_buffer.size() - d_ctx_offset);
+}
+
 } // namespace klog
