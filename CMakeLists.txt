@@ -21,10 +21,11 @@ add_subdirectory(examples)
 
 # install rules
 install(TARGETS klog
-        EXPORT KlogConfig
+        EXPORT KlogTargets
         ARCHIVE DESTINATION lib COMPONENT lib
         PUBLIC_HEADER DESTINATION include/klog COMPONENT dev
 )
+install(FILES KlogConfig.cmake DESTINATION share/klog)
 
-export(TARGETS klog NAMESPACE Klog:: FILE ${CMAKE_CURRENT_BINARY_DIR}/KlogConfig.cmake)
-install(EXPORT KlogConfig DESTINATION share/klog NAMESPACE Klog::)
+install(EXPORT KlogTargets DESTINATION share/klog NAMESPACE Klog::)
+export(TARGETS klog NAMESPACE Klog:: FILE ${CMAKE_CURRENT_BINARY_DIR}/KlogTargets.cmake)
