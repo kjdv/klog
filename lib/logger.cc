@@ -11,8 +11,8 @@ namespace implementation {
 void post(klog::loglevel severity, std::string_view tag, std::string_view msg)
 {
   static int pid = getpid();
-  thread_local auto id = std::this_thread::get_id();
-  event::threadid_t tid = reinterpret_cast<event::threadid_t>(&id);
+  static int thread_counter = 0;
+  thread_local event::threadid_t tid = thread_counter++;
 
   assert(g_sink);
   g_sink->consume(event{pid,

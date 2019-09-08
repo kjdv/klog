@@ -7,7 +7,6 @@
 #include <ostream>
 #include <type_traits>
 #include <mutex>
-#include <cstdint>
 #include <kthread/threadpool.hh>
 
 namespace klog {
@@ -16,7 +15,7 @@ class event
 {
 public:
   using timestamp_t = std::chrono::time_point<std::chrono::system_clock>;
-  using threadid_t = uintptr_t;
+  using threadid_t = int;
 
   event(int process, threadid_t thread, timestamp_t ts, loglevel severity,
         std::string_view tag, std::string_view msg, std::string_view ctx) noexcept;
