@@ -1,7 +1,6 @@
 #include <logger.hh>
 #include <consumer.hh>
 #include <gtest/gtest.h>
-#include <unistd.h>
 #include "test_consumer.hh"
 
 namespace klog {

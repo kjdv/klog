@@ -35,7 +35,6 @@ void bm_ostream_consumer(benchmark::State& state) {
 
   event ev(
     1,
-    2,
     std::chrono::system_clock::now(),
     loglevel::info,
     "tag",
@@ -56,7 +55,6 @@ void bm_threaded_consumer(benchmark::State& state) {
 
   event ev(
       1,
-      2,
       std::chrono::system_clock::now(),
       loglevel::info,
       "tag",

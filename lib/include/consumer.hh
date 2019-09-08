@@ -17,10 +17,8 @@ public:
   using timestamp_t = std::chrono::time_point<std::chrono::system_clock>;
   using threadid_t = int;
 
-  event(int process, threadid_t thread, timestamp_t ts, loglevel severity,
+  event(threadid_t thread, timestamp_t ts, loglevel severity,
         std::string_view tag, std::string_view msg, std::string_view ctx) noexcept;
-
-  int process() const;
 
   threadid_t thread() const;
 
@@ -35,7 +33,6 @@ public:
   std::string_view context() const;
 
 private:
-  int              d_process{};
   threadid_t       d_thread{};
   timestamp_t      d_timestamp{};
   loglevel         d_severity{};
@@ -82,7 +79,7 @@ public:
   explicit ostream_consumer(
       std::ostream&    out,
       loglevel         min_level = loglevel::all,
-      std::string_view fmt       = "{time} {process}:{thread} {severity} [{tag}] [{context}] {msg}\n");
+      std::string_view fmt       = "{time} #{thread} {severity} [{tag}] [{context}] {msg}\n");
 
   void consume(event ev) override;
 

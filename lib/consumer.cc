@@ -2,7 +2,6 @@
 #include <consumer.hh>
 #include <iomanip>
 #include "sink.hh"
-#include <unistd.h>
 #include <fmt/chrono.h>
 #include <iostream>
 
@@ -54,7 +53,6 @@ fmt::memory_buffer format_event(std::string_view f, const event& ev)
   auto time = put_time(ev.timestamp());
   fmt::format_to(buf, f,
                  fmt::arg("time", std::string_view(time.data(), time.size())),
-                 fmt::arg("process", ev.process()),
                  fmt::arg("thread", ev.thread()),
                  fmt::arg("severity", severity(ev.severity())),
                  fmt::arg("tag", ev.tag()),
@@ -66,7 +64,7 @@ fmt::memory_buffer format_event(std::string_view f, const event& ev)
 
 void validate_format(std::string_view f) // throws if f can't format events
 {
-  format_event(f, event(int{}, event::threadid_t{}, event::timestamp_t{}, loglevel::info, "", "", ""));
+  format_event(f, event(event::threadid_t{}, event::timestamp_t{}, loglevel::info, "", "", ""));
 }
 
 } // namespace
@@ -136,9 +134,8 @@ void set_stdlog_consumer()
   set_consumer(std::make_unique<ostream_consumer>(std::clog));
 }
 
-event::event(int process, event::threadid_t thread, event::timestamp_t ts, loglevel severity, std::string_view tag, std::string_view msg, std::string_view ctx) noexcept
-  : d_process(process)
-  , d_thread(thread)
+event::event(event::threadid_t thread, event::timestamp_t ts, loglevel severity, std::string_view tag, std::string_view msg, std::string_view ctx) noexcept
+  : d_thread(thread)
   , d_timestamp(ts)
   , d_severity(severity)
   , d_msg_offset(tag.size())
@@ -150,11 +147,6 @@ event::event(int process, event::threadid_t thread, event::timestamp_t ts, logle
   std::copy(tag.begin(), tag.end(), d_buffer.begin());
   std::copy(msg.begin(), msg.end(), d_buffer.begin() + tag.size());
   std::copy(ctx.begin(), ctx.end(), d_buffer.begin() + tag.size() + msg.size());
-}
-
-int event::process() const
-{
-  return d_process;
 }
 
 event::threadid_t event::thread() const

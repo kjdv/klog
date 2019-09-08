@@ -1,6 +1,5 @@
 #include <consumer.hh>
 #include <gtest/gtest.h>
-#include <unistd.h>
 #include <thread>
 #include "test_consumer.hh"
 
@@ -15,7 +14,6 @@ TEST(sink_test, post_connects_to_set_sink)
   implementation::post(loglevel::info, "tag", "message");
   auto after = std::chrono::system_clock::now();
 
-  EXPECT_EQ(getpid(), fx.last_event.process());
   EXPECT_EQ(loglevel::info, fx.last_event.severity());
   EXPECT_EQ("tag", fx.last_event.tag());
   EXPECT_EQ("message", fx.last_event.message());
@@ -31,7 +29,6 @@ TEST(ostream_consumer, consumes)
 
   event ev{
     1,
-    2,
     event::timestamp_t{} + std::chrono::microseconds(3),
     loglevel::info,
     "tag",
@@ -40,7 +37,7 @@ TEST(ostream_consumer, consumes)
   };
   consumer.consume(ev);
 
-  EXPECT_EQ("1970-01-01T00:00:00.000003 1:2 INFO [tag] [ctx] message\n", stream.str()); // todo: fix microsecond precisision
+  EXPECT_EQ("1970-01-01T00:00:00.000003 #1 INFO [tag] [ctx] message\n", stream.str()); // todo: fix microsecond precisision
 }
 
 TEST(ostream_consumer, loglevel_is_respected)
@@ -65,14 +62,13 @@ TEST(ostream_consumer, validated_fmt)
 TEST(ostream_consumer, produces_process_and_thread_id)
 {
   std::stringstream stream;
-  implementation::consumer_override_guard g(std::make_unique<ostream_consumer>(stream, loglevel::all, "{process} {thread}"));
+  implementation::consumer_override_guard g(std::make_unique<ostream_consumer>(stream, loglevel::all, "{thread}"));
 
   implementation::post(loglevel::info, "", "");
 
-  int p;
-  std::string t;
-  stream >> p >> t;
-  EXPECT_EQ(getpid(), p);
+  event::threadid_t t;
+  stream >> t;
+  EXPECT_TRUE(stream);
 }
 
 TEST(threaded_consumer, consumes)
@@ -84,7 +80,6 @@ TEST(threaded_consumer, consumes)
 
     event ev{
         1,
-        2,
         event::timestamp_t{} + std::chrono::microseconds(3),
         loglevel::info,
         "tag",
@@ -97,7 +92,7 @@ TEST(threaded_consumer, consumes)
   }
 
 
-  EXPECT_EQ("1970-01-01T00:00:00.000003 1:2 INFO [tag] [ctx] message\n", stream.str());
+  EXPECT_EQ("1970-01-01T00:00:00.000003 #1 INFO [tag] [ctx] message\n", stream.str());
 }
 
 std::string read_from(int fd)
