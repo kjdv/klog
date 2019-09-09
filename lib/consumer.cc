@@ -104,19 +104,21 @@ void ostream_consumer::consume(event ev)
 }
 
 threaded_consumer::threaded_consumer(std::unique_ptr<consumer> delegate)
-  : d_delegate(std::move(delegate))
-  , d_pool(1)
+  : d_tx(d_processor.tx())
 {
-  assert(d_delegate);
+  assert(delegate);
+  d_processor.connect(helper{std::move(delegate)});
 }
 
 void threaded_consumer::consume(event ev)
 {
-  auto do_log = [this, evm = std::move(ev)] () mutable {
-    this->d_delegate->consume(std::move(evm));
-  };
+  d_tx.push(std::move(ev));
+}
 
-  d_pool.post(std::move(do_log));
+
+void threaded_consumer::helper::operator()(event ev)
+{
+  delegate->consume(std::move(ev));
 }
 
 void set_stdout_consumer()
@@ -178,5 +180,6 @@ std::string_view event::context() const
 {
   return std::string_view(d_buffer.data() + d_ctx_offset, d_buffer.size() - d_ctx_offset);
 }
+
 
 } // namespace klog

@@ -7,7 +7,8 @@
 #include <ostream>
 #include <type_traits>
 #include <mutex>
-#include <kthread/threadpool.hh>
+#include <kthread/processor.hh>
+#include <thread>
 
 namespace klog {
 
@@ -99,8 +100,14 @@ public:
   void consume(event ev) override;
 
 private:
-  std::unique_ptr<consumer> d_delegate;
-  kthread::threadpool d_pool;
+  struct helper
+  {
+    std::unique_ptr<consumer> delegate;
+    void operator()(event ev);
+  };
+
+  kthread::processor<event, helper> d_processor;
+  kthread::sender<event> d_tx;
 };
 
 } // namespace klog
