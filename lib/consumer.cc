@@ -112,7 +112,7 @@ threaded_consumer::threaded_consumer(std::unique_ptr<consumer> delegate)
 
 void threaded_consumer::consume(event ev)
 {
-  d_tx.push(std::move(ev));
+  d_tx.send(std::move(ev));
 }
 
 
