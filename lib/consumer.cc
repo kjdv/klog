@@ -25,6 +25,8 @@ constexpr const char* severity(loglevel l)
   case loglevel::none:
     return "NONE"; // ?
   }
+
+  assert(false && "unreachable");
 }
 
 fmt::memory_buffer put_time(const event::timestamp_t& v)
