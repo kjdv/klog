@@ -1,8 +1,9 @@
+#include "sink.hh"
 #include <cassert>
 #include <consumer.hh>
-#include <iomanip>
-#include "sink.hh"
 #include <fmt/chrono.h>
+#include <fmt/format.h>
+#include <iomanip>
 #include <iostream>
 
 namespace klog {
@@ -38,14 +39,7 @@ fmt::memory_buffer put_time(const event::timestamp_t& v)
 
   auto us = std::chrono::duration_cast<std::chrono::microseconds>(v.time_since_epoch()).count() % 1000000;
 
-  fmt::format_to(buf, "{:0>4d}-{:0>2d}-{:0>2d}T{:0>2d}:{:0>2d}:{:0>2d}.{:0>6d}",
-                 tm.tm_year + 1900,
-                 tm.tm_mon + 1,
-                 tm.tm_mday,
-                 tm.tm_hour,
-                 tm.tm_min,
-                 tm.tm_sec,
-                 us);
+  fmt::format_to(std::back_inserter(buf), "{:0>4d}-{:0>2d}-{:0>2d}T{:0>2d}:{:0>2d}:{:0>2d}.{:0>6d}", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec, us);
   return buf;
 }
 
@@ -53,13 +47,7 @@ fmt::memory_buffer format_event(std::string_view f, const event& ev)
 {
   fmt::memory_buffer buf;
   auto time = put_time(ev.timestamp());
-  fmt::format_to(buf, f,
-                 fmt::arg("time", std::string_view(time.data(), time.size())),
-                 fmt::arg("thread", ev.thread()),
-                 fmt::arg("severity", severity(ev.severity())),
-                 fmt::arg("tag", ev.tag()),
-                 fmt::arg("context", ev.context()),
-                 fmt::arg("msg", ev.message()));
+  fmt::format_to(std::back_inserter(buf), f, fmt::arg("time", std::string_view(time.data(), time.size())), fmt::arg("thread", ev.thread()), fmt::arg("severity", severity(ev.severity())), fmt::arg("tag", ev.tag()), fmt::arg("context", ev.context()), fmt::arg("msg", ev.message()));
 
   return buf;
 }

@@ -89,7 +89,7 @@ void logger<min_level>::print(std::string_view f, Args&&... args)
   if constexpr (min_level <= severity)
   {
     fmt::memory_buffer buf;
-    fmt::format_to(buf, f, std::forward<Args>(args)...);
+    fmt::format_to(std::back_inserter(buf), f, std::forward<Args>(args)...);
     implementation::post(severity, d_tag, std::string_view(buf.data(), buf.size()));
   }
 }
